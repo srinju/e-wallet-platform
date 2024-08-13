@@ -4,7 +4,9 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "./Button";
 
 
+
 export const Users = () => {
+    
     const [users,setUsers] = useState([]);
     const [filter,setFilter] = useState("");
     const [debouncedFilter,setDebouncedFilter] = useState(filter);
@@ -18,12 +20,20 @@ export const Users = () => {
             clearTimeout(handler);
         }
     },[filter]);
-
+    
+    //get users when filtering >>
     useEffect(() => {
-        axios.get("http://localhost:3000/api/v1/user/bulk?filter=" + filter)
-            .then(response => {
-                setUsers(response.data.user)
-            })
+        axios.get("http://localhost:3000/api/v1/user/bulk?filter=" + filter,{
+            headers : {
+                Authorization : `Bearer ${localStorage.getItem('token')}`
+            }
+        })
+        .then(response => {
+            setUsers(response.data.user)
+        })
+        .catch(error => {
+            console.error("Error fetching users : ",error);
+        })
     },[debouncedFilter]);
 
     return <>
@@ -36,7 +46,7 @@ export const Users = () => {
             }}></input>
         </div>
         <div>
-            {users.map(user => <User user={user} />)}
+            {users.map((user,i) => <User key={i} user={user} />)}
         </div>
     </>
 }
