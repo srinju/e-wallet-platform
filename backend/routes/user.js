@@ -123,16 +123,19 @@ router.put('/updatingInfo' , authMiddleware , async (req,res,next) => {
 
 router.get('/bulk' , async (req,res) => {
     const filter = req.query.filter || "";
-    
+    const loggedInUserId = req.userId;
+
     const users = await User.find({
-        
+        _id : { $ne : loggedInUserId}, //excluding the loggedinuser to show up with the users ..(but this dosent work ...you can basically send yourself which results in net 0 change )
         $or : [{ //this syntax is used for the filtering query search technique
             firstName : {
-                "$regex": filter
+                "$regex": filter,
+                "$options": "i"
             }
         }, {
             lastName : {
-                "$regex" : filter
+                "$regex" : filter,
+                "$options": "i"
             }
         }]
     })
